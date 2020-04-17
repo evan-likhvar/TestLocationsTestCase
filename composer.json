@@ -1,0 +1,16 @@
+{
+  "name": "Test type validator",
+  "description": "Thrivable test validate location.",
+  "version": "0.0.5",
+  "homepage": "https://www.extreme-idea.com",
+  "keywords": [],
+  "require": {
+    "symfony/framework-bundle": "^5.0",
+    "phpunit/phpunit": "^8"
+  },
+  "autoload": {
+    "psr-4": {
+      "Com\\ExtremeIdea\\Thrivable\\Test\\Type\\Validator\\": "src/"
+    }
+  }
+}
