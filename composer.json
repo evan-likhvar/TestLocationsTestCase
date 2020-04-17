@@ -1,16 +1,24 @@
 {
-  "name": "Test type validator",
+  "name": "elikh/location-conventions-validator",
   "description": "Thrivable test validate location.",
   "version": "0.0.5",
+  "type": "library",
   "homepage": "https://www.extreme-idea.com",
   "keywords": [],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Evan Likhvar"
+    }
+  ],
   "require": {
+    "php": "^7.2",
     "symfony/framework-bundle": "^5.0",
     "phpunit/phpunit": "^8"
   },
   "autoload": {
     "psr-4": {
-      "Com\\ExtremeIdea\\Thrivable\\Test\\Type\\Validator\\": "src/"
+      "Elikh\\": "src/"
     }
   }
 }
