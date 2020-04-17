@@ -9,7 +9,7 @@
  *
  */
 
-namespace Com\ExtremeIdea\Thrivable\Test\Type\Validator;
+namespace Elikh;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
@@ -20,8 +20,12 @@ class TestLocationsTestCase extends TestCase
 {
     private $errors = [];
 
-    public function validateTestLocation()
+    private $testRoot;
+
+    public function validateTestLocation(string $testRoot)
     {
+        $this->testRoot = $testRoot;
+
         $unitTestFiles = [
             'Unit' => $this->getUnitTestFiles(),
             'Functional' => $this->getFunctionalTestFiles(),
@@ -37,10 +41,9 @@ class TestLocationsTestCase extends TestCase
 
                 include_once $filePath;
 
-                if ($this->{$validateMethod}($filePath) != $message) {
+                if ($this->{$validateMethod}($filePath) == $message) {
                     $this->errors[] = $message;
                 }
-                //$this->assertTrue($this->{$validateMethod}($filePath), $message);
             }
         }
         return $this->errors;
@@ -107,7 +110,7 @@ class TestLocationsTestCase extends TestCase
 
     public function getUnitTestFiles(): iterable
     {
-        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Unit';
+        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Unit';
         $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
 
         return $files;
@@ -115,7 +118,7 @@ class TestLocationsTestCase extends TestCase
 
     public function getFunctionalTestFiles(): iterable
     {
-        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Functional';
+        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Functional';
         $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
 
         return $files;
@@ -123,7 +126,7 @@ class TestLocationsTestCase extends TestCase
 
     public function getIntegrationTestFiles(): iterable
     {
-        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Integration';
+        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Integration';
         $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
 
         return $files;
@@ -131,7 +134,7 @@ class TestLocationsTestCase extends TestCase
 
     public function getBehaviorTestFiles(): iterable
     {
-        $path = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'Behavior';
+        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Behavior';
         $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
 
         return $files;
