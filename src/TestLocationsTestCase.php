@@ -12,9 +12,6 @@
 namespace Elikh;
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpKernel\Kernel;
 
 class TestLocationsTestCase extends TestCase
 {
@@ -22,122 +19,40 @@ class TestLocationsTestCase extends TestCase
 
     private $testRoot;
 
-    public function validateTestLocation(string $testRoot)
+    /** @var TestTypeValidatorInterface */
+    private $validator;
+
+    public function validateTestLocation(string $testRoot, TestTypeValidatorInterface $validator)
     {
         $this->testRoot = $testRoot;
+        $this->validator = $validator;
+        $testFiles = $this->getTestFiles();
 
-        $unitTestFiles = [
-            'Unit' => $this->getUnitTestFiles(),
-            'Functional' => $this->getFunctionalTestFiles(),
-            'Integration' => $this->getIntegrationTestFiles(),
-            'Behavior' => $this->getBehaviorTestFiles()
-        ];
+        foreach ($testFiles as $filePath) {
+            $message = $this->getMessage($filePath);
 
-        foreach ($unitTestFiles as $type => $filePaths) {
-            $validateMethod = "is{$type}Test";
+            include_once $filePath;
 
-            foreach ($filePaths as $filePath) {
-                $message = "This is not a $type test in file: $filePath";
-
-                include_once $filePath;
-
-                if ($this->{$validateMethod}($filePath) == $message) {
-                    $this->errors[] = $message;
-                }
+            if (!$this->isValid($filePath)) {
+                $this->errors[] = $message;
             }
         }
+
         return $this->errors;
     }
-
-    public function isUnitTest(string $filePath)
+    private function getTestFiles(): array
     {
-        $testClass = $this->getClassName($filePath);
-
-        if ((!is_string($testClass) && !is_object($testClass))
-            || is_subclass_of($testClass, KernelTestCase::class)
-            || is_subclass_of($testClass, WebTestCase::class)
-            || !is_subclass_of($testClass, TestCase::class)
-            || strpos($testClass, 'UnitTest') === false
-            || strpos($testClass, 'App\Tests\Unit') === false
-        ) {
-            return false;
-        }
-
-        return true;
+        return $this->validator->getTestFiles($this->testRoot);
     }
 
-    public function isFunctionalTest(string $filePath)
+    private function isValid(string $filePath): bool
     {
-        $testClass = $this->getClassName($filePath);
-
-        if ((!is_string($testClass) && !is_object($testClass))
-            || !is_subclass_of($testClass, WebTestCase::class)
-            || strpos($testClass, 'FeatureTest') === false
-            || strpos($testClass, 'App\Tests\Functional') === false
-        ) {
-            return false;
-        }
-
-        return true;
+        return $this->validator->isValid($filePath, $this->getClassName($filePath));
     }
 
-    public function isIntegrationTest(string $filePath)
+    private function getMessage(string $filePath): string
     {
-        $testClass = $this->getClassName($filePath);
-
-        if ((!is_string($testClass) && !is_object($testClass))
-            || (!is_subclass_of($testClass, WebTestCase::class)
-                && !is_subclass_of($testClass, KernelTestCase::class))
-            || strpos($testClass, 'IntegrationTest') === false
-            || strpos($testClass, 'App\Tests\Integration') === false
-        ) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public function isBehaviorTest(string $filePath)
-    {
-        if (!is_file($filePath) || strpos($filePath, 'BehaviorTest') === false) {
-            return false;
-        }
-
-        $parts = pathinfo($filePath);
-
-        return $parts['extension'] === 'feature';
-    }
-
-    public function getUnitTestFiles(): iterable
-    {
-        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Unit';
-        $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-
-        return $files;
-    }
-
-    public function getFunctionalTestFiles(): iterable
-    {
-        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Functional';
-        $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-
-        return $files;
-    }
-
-    public function getIntegrationTestFiles(): iterable
-    {
-        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Integration';
-        $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-
-        return $files;
-    }
-
-    public function getBehaviorTestFiles(): iterable
-    {
-        $path = $this->testRoot . DIRECTORY_SEPARATOR . 'Behavior';
-        $files = array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-
-        return $files;
+        return $this->validator->getMessage($filePath);
     }
 
     private function getClassName($filePath)
@@ -160,8 +75,6 @@ class TestLocationsTestCase extends TestCase
             }
         }
         $namespace = isset($namespaceParts[1]) ? $namespaceParts[1] : '';
-        $className = !empty($namespace) ? "{$namespace}\\{$classParts[1]}" : $classParts[1];
-
-        return $className;
+        return !empty($namespace) ? "{$namespace}\\{$classParts[1]}" : $classParts[1];
     }
 }
