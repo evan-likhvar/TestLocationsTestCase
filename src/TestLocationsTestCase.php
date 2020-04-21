@@ -47,34 +47,11 @@ class TestLocationsTestCase extends TestCase
 
     private function isValid(string $filePath): bool
     {
-        return $this->validator->isValid($filePath, $this->getClassName($filePath));
+        return $this->validator->isValid($filePath);
     }
 
     private function getMessage(string $filePath): string
     {
         return $this->validator->getMessage($filePath);
-    }
-
-    private function getClassName($filePath)
-    {
-        $file = file($filePath, FILE_SKIP_EMPTY_LINES | FILE_IGNORE_NEW_LINES);
-
-        if (!is_array($file)) {
-            return null;
-        }
-
-        foreach ($file as $line) {
-            if (isset($classParts) && isset($namespaceParts)) {
-                continue;
-            }
-            if (strpos($line, 'class') === 0) {
-                preg_match('/^class\s+([a-zA-z0-9_]+)\s{0,}/', $line, $classParts);
-            }
-            if (strpos($line, 'namespace') === 0) {
-                preg_match('/^namespace\s+(\S+)\s{0,};/', $line, $namespaceParts);
-            }
-        }
-        $namespace = isset($namespaceParts[1]) ? $namespaceParts[1] : '';
-        return !empty($namespace) ? "{$namespace}\\{$classParts[1]}" : $classParts[1];
     }
 }

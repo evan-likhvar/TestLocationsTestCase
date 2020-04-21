@@ -11,10 +11,11 @@
 
 namespace Elikh;
 
-class BehaviorTestValidator implements TestTypeValidatorInterface
+class BehaviorTestValidator extends AbstractLocationTestValidator
 {
+    const TEST_TYPE = 'Behavior';
 
-    public function isValid(string $filePath, string $testClass)
+    public function isValid(string $filePath)
     {
         if (!is_file($filePath) || strpos($filePath, 'BehaviorTest') === false) {
             return false;
@@ -23,16 +24,5 @@ class BehaviorTestValidator implements TestTypeValidatorInterface
         $parts = pathinfo($filePath);
 
         return $parts['extension'] === 'feature';
-    }
-
-    public function getTestFiles(string $testRoot): array
-    {
-        $path = $testRoot . DIRECTORY_SEPARATOR . 'Behavior';
-        return array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-    }
-
-    public function getMessage(string $filePath): string
-    {
-        return "This is not a behavior test in file: $filePath";
     }
 }

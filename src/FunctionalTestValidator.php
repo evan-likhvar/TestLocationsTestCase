@@ -13,11 +13,14 @@ namespace Elikh;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class FunctionalTestValidator implements TestTypeValidatorInterface
+class FunctionalTestValidator extends AbstractLocationClassTestValidator
 {
+    const TEST_TYPE = 'Functional';
 
-    public function isValid(string $filePath, string $testClass)
+    public function isValid(string $filePath)
     {
+        $testClass = $this->getClassName($filePath);
+
         if ((!is_string($testClass) && !is_object($testClass))
             || !is_subclass_of($testClass, WebTestCase::class)
             || strpos($testClass, 'FeatureTest') === false
@@ -27,16 +30,5 @@ class FunctionalTestValidator implements TestTypeValidatorInterface
         }
 
         return true;
-    }
-
-    public function getTestFiles(string $testRoot): array
-    {
-        $path = $testRoot . DIRECTORY_SEPARATOR . 'Functional';
-        return array_diff(glob($path . DIRECTORY_SEPARATOR . '*'), ['..', '.']);
-    }
-
-    public function getMessage(string $filePath): string
-    {
-        return "This is not a functional test in file: $filePath";
     }
 }

@@ -14,7 +14,7 @@ namespace Elikh;
 
 interface TestTypeValidatorInterface
 {
-    public function isValid(string $filePath, string $testClass);
+    public function isValid(string $filePath);
 
     public function getTestFiles(string $testRoot): array;
 
